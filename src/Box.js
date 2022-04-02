@@ -1,6 +1,7 @@
-import ReactDOM from 'react-dom'
 import React, { useRef, useState } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { useFrame } from '@react-three/fiber'
+
+var time = 0
 
 export default function Box(props) {
   // This reference gives us direct access to the THREE.Mesh object
@@ -9,9 +10,12 @@ export default function Box(props) {
   const [hovered, hover] = useState(false)
   const [clicked, click] = useState(false)
   // Subscribe this component to the render-loop, rotate the mesh every frame
+  
+  var amp = 2
   useFrame((state, delta) => {
-      ref.current.rotation.y += 0.01
-      ref.current.rotation.z += 0.01
+    time += delta
+    ref.current.position.x = Math.sin(time/2 + props.offset) * amp
+    ref.current.position.y = Math.cos(time/2 + props.offset) * amp
   })
   // Return the view, these are regular Threejs elements expressed in JSX
   return (
@@ -19,11 +23,11 @@ export default function Box(props) {
         <mesh
         {...props}
         ref={ref}
-        scale={clicked ? 1.5 : 1}
+        //scale={clicked ? 1.5 : 1}
         onClick={(event) => click(!clicked)}
         onPointerOver={(event) => hover(true)}
         onPointerOut={(event) => hover(false)}>
-        <boxGeometry args={[1, 1, 1]} />
+        <sphereGeometry args={[0.5, 16, 16]} />
         <meshStandardMaterial color={hovered ? 'red' : 'blue'} />
         </mesh>
   )

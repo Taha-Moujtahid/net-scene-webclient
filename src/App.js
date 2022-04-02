@@ -1,5 +1,6 @@
 import { Fragment, useState } from 'react'
 import { Dialog, Menu, Transition } from '@headlessui/react'
+import firestore from "./API"
 import {
   BellIcon,
   FolderIcon,
@@ -10,9 +11,8 @@ import {
   XIcon,
 } from '@heroicons/react/outline'
 import { SearchIcon } from '@heroicons/react/solid'
-import Box from "./Box"
 
-import { Canvas, useFrame } from '@react-three/fiber'
+import View3D from './Views/View3D'
 
 const navigation = [
   { name: '3D View', href: '#3DView', icon: CubeTransparentIcon, current: true },
@@ -32,6 +32,17 @@ function classNames(...classes) {
 
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  const [users, setUsers] = useState()
+
+  const docRef = firestore.collection('users').doc('testuser');
+
+  docRef.onSnapshot((doc)=>{
+    console.log(doc)
+    setUsers(doc)
+  })
+  
+  
 
   return (
     <>
@@ -227,29 +238,16 @@ export default function App() {
           <main>
             <div className="py-6">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-                <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
+                <h1 className="text-2xl font-semibold text-gray-900">Dashboard {users} </h1>
               </div>
               <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
                 {/* Replace with your content */}
-                <div className="py-4">
-                  <div className="border-4 border-dashed border-gray-200 rounded-lg h-96">
-                  <Canvas>
-                    <ambientLight />
-                    <pointLight position={[10, 10, 10]} />
-                    <Box position={[-1.2, 0, 0]} />
-                    <Box position={[0, 0, 0]} />
-                    <Box position={[1.2, 0, 0]} />
-
-                    <Box position={[-1.2, 1.2, 0]} />
-                    <Box position={[0, 1.2, 0]} />
-                    <Box position={[1.2, 1.2, 0]} />
-
-                    <Box position={[-1.2, -1.2, 0]} />
-                    <Box position={[0, -1.2, 0]} />
-                    <Box position={[1.2, -1.2, 0]} />
-                    </Canvas>
+                <div className="py-8">
+                  <div className="border-4 border-dashed border-gray-200 rounded-lg h-[40rem]">
+                  <View3D/>
                   </div>
                 </div>
+                <p>{users}</p>
                 {/* /End replace */}
               </div>
             </div>

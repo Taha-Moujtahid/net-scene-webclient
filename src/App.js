@@ -1,7 +1,6 @@
 import { Fragment, useState, useEffect } from 'react'
 import { Dialog, Menu, Transition } from '@headlessui/react'
-import { onSnapshot, collection } from "firebase/firestore"
-import firestore from "./API"
+
 
 import {
   BellIcon,
@@ -37,13 +36,6 @@ export default function App() {
 
   const [users, setUsers] = useState()
 
-  useEffect(() =>  onSnapshot(collection(firestore,"users"),(snapShot)=>{
-      for(var doc in snapShot.docs){
-        console.log(doc)
-      }
-      console.log(snapShot.docs.map((doc)=>doc.data()))
-    }),[]
-  );
   
   
 

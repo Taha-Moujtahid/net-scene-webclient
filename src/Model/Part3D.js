@@ -35,15 +35,13 @@ class GLTFResource {
       this.loader.setMeshoptDecoder(MeshoptDecoder);
     }
 
-    loadModel(modelName, sceneCallback) {
-        console.log(this.loader)
+    loadModel(modelName, sceneCallback, onClickCallback) {
         this.loader.load(`${MODEL_3D_ROOT}/${modelName}.glb`,(gltf) => {
             const root = gltf.scene;
             if (root.name === "AuxScene" && root.children.length === 1){
-              sceneCallback(this.hideBoundingBoxes(root.children[0]));
+              sceneCallback(this.hideBoundingBoxes(root.children[0]), onClickCallback);
             }else{
-              var model = this.hideBoundingBoxes(root)
-              console.log(model)
+              var model = this.hideBoundingBoxes(root, onClickCallback)
               sceneCallback(model)
             }
           },()=>{},(e) => {
@@ -55,38 +53,39 @@ class GLTFResource {
         });
     }
 
-    hideBoundingBoxes(_model){
+    hideBoundingBoxes(_model, onClickCallback){
       var r_model = [];
       _model.children.forEach(child => {
         if( child.name != "Model"){
           r_model.push(
-            <mesh onClick={(e)=> {
-              e.stopPropagation()
-              console.log(child.name)
-            }}>
+            <mesh 
+              onClick={(e)=> {
+                e.stopPropagation()
+                onClickCallback(child.name)
+              }}
+              key={child.name}
+              visible={false}
+            >
               <primitive 
                object={child}
                position={child.position}
                rotation={[0,0,0]}
-               visible={false}
               />
             </mesh>
           )
           
         }
       })
-      
-      return  (
-        <>
-          {r_model.map((mesh)=>mesh)}
-          <primitive
-            object={_model}
-            position={[0, 0, 0]}
-            scale={1}
-            rotation={[0,0,0]}
-          />
-        </>
+      r_model.push(
+        <primitive
+          key={"Model"}
+          object={_model}
+          position={[0, 0, 0]}
+          scale={1}
+          rotation={[0,0,0]}
+        />
       )
+      return r_model
     }
 
   }

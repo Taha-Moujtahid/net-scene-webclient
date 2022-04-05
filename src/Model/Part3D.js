@@ -56,22 +56,36 @@ class GLTFResource {
     }
 
     hideBoundingBoxes(_model){
-      var r_model = _model;
-      r_model.children.forEach(child => {
+      var r_model = [];
+      _model.children.forEach(child => {
         if( child.name != "Model"){
-          child.visible = false
+          r_model.push(
+            <mesh onClick={(e)=> {
+              e.stopPropagation()
+              console.log(child.name)
+            }}>
+              <primitive 
+               object={child}
+               position={child.position}
+               rotation={[0,0,0]}
+               visible={false}
+              />
+            </mesh>
+          )
           
         }
       })
       
       return  (
-        <primitive
-          object={_model}
-          position={[0, 0, 0]}
-          scale={1}
-          rotation={[0,0,0]}
-          onClick={console.log("test")}
-        />
+        <>
+          {r_model.map((mesh)=>mesh)}
+          <primitive
+            object={_model}
+            position={[0, 0, 0]}
+            scale={1}
+            rotation={[0,0,0]}
+          />
+        </>
       )
     }
 

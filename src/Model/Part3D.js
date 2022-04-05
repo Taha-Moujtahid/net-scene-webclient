@@ -11,7 +11,7 @@ import * as THREE from "three"
 import groundTexture from "../Textures/GridTexture.png"
 import { useLoader } from "@react-three/fiber";
 
-const MODEL_3D_ROOT = "/models/"
+const MODEL_3D_ROOT = "models"
 
 class GLTFResource {
   
@@ -35,15 +35,16 @@ class GLTFResource {
       this.loader.setMeshoptDecoder(MeshoptDecoder);
     }
 
-    loadModel(modelName,sceneCallback) {
+    loadModel(modelName, sceneCallback) {
         console.log(this.loader)
         this.loader.load(`${MODEL_3D_ROOT}/${modelName}.glb`,(gltf) => {
             const root = gltf.scene;
             if (root.name === "AuxScene" && root.children.length === 1){
-                sceneCallback(root.children[0]);
+              sceneCallback(this.hideBoundingBoxes(root.children[0]));
             }else{
-                this.loadSubmodels(root.children)
-                sceneCallback(root)
+              var model = this.hideBoundingBoxes(root)
+              console.log(model)
+              sceneCallback(model)
             }
           },()=>{},(e) => {
             if (e instanceof SyntaxError) {
@@ -54,13 +55,24 @@ class GLTFResource {
         });
     }
 
-    loadSubmodels(children){
-        if(children.length < 0){
-          return
+    hideBoundingBoxes(_model){
+      var r_model = _model;
+      r_model.children.forEach(child => {
+        if( child.name != "Model"){
+          child.visible = false
+          
         }
-        for (var child in children){
-            console.log(child)
-        }
+      })
+      
+      return  (
+        <primitive
+          object={_model}
+          position={[0, 0, 0]}
+          scale={1}
+          rotation={[0,0,0]}
+          onClick={console.log("test")}
+        />
+      )
     }
 
   }

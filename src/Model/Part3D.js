@@ -6,6 +6,7 @@ import {
   } from "three-stdlib";
 
 import * as THREE from "three"
+import React, { Component } from 'react'
 
 
 import groundTexture from "../Textures/GridTexture.png"
@@ -35,14 +36,13 @@ class GLTFResource {
       this.loader.setMeshoptDecoder(MeshoptDecoder);
     }
 
-    loadModel(modelName, sceneCallback, onClickCallback) {
+    loadModel(modelName, onLoad) {
         this.loader.load(`${MODEL_3D_ROOT}/${modelName}.glb`,(gltf) => {
             const root = gltf.scene;
             if (root.name === "AuxScene" && root.children.length === 1){
-              sceneCallback(this.hideBoundingBoxes(root.children[0]), onClickCallback);
+              onLoad(root.children[0]);
             }else{
-              var model = this.hideBoundingBoxes(root, onClickCallback)
-              sceneCallback(model)
+              onLoad(root);
             }
           },()=>{},(e) => {
             if (e instanceof SyntaxError) {
@@ -53,42 +53,32 @@ class GLTFResource {
         });
     }
 
-    hideBoundingBoxes(_model, onClickCallback){
-      var r_model = [];
-      _model.children.forEach(child => {
-        if( child.name != "Model"){
-          r_model.push(
-            <mesh 
-              onClick={(e)=> {
-                e.stopPropagation()
-                onClickCallback(child.name)
-              }}
-              key={child.name}
-              visible={false}
-            >
-              <primitive 
-               object={child}
-               position={child.position}
-               rotation={[0,0,0]}
-              />
-            </mesh>
-          )
-          
-        }
-      })
-      r_model.push(
-        <primitive
-          key={"Model"}
-          object={_model}
-          position={[0, 0, 0]}
-          scale={1}
-          rotation={[0,0,0]}
-        />
-      )
-      return r_model
-    }
-
+    
   }
+ 
+ export  function Part3D(props) {
+  const visible = props.visible === undefined ? true : props.visible
+  const onClick = props.onClick
+  
+  return (
+      <mesh 
+          onClick={(e)=> {
+              e.stopPropagation()
+              onClick(props.model_ID)
+          }}
+          key={props.model_ID}
+          visible={visible}
+      >
+      <primitive 
+      object={props.model}
+      position={props.model.position}
+      rotation={props.model.rotation}
+      />
+  </mesh>
+  )
+ }
+ 
+
 
  
 
@@ -100,7 +90,7 @@ class GLTFResource {
 
         return (
             <mesh
-                rotation={[ - (Math.PI / 2),0,0]}
+                rotation={[- (Math.PI / 2),0,0]}
                 scale={[100,100,1]}
                 position={[0,-10,0]}
             >

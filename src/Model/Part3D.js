@@ -2,16 +2,18 @@ import {
     DRACOLoader,
     GLTFLoader,
     MeshoptDecoder,
-    OrbitControls as ThreeOrbitControls,
-    meshBasicMaterial
+    meshBasicMaterial,
   } from "three-stdlib";
 
 import * as THREE from "three"
-import React, { Component } from 'react'
+import React, { useRef } from 'react'
+
 
 
 import groundTexture from "../Textures/GridTexture.png"
 import { useLoader } from "@react-three/fiber";
+import { useInteraction } from "@react-three/xr";
+
 
 const MODEL_3D_ROOT = "models"
 
@@ -62,27 +64,34 @@ class GLTFResource {
   const onClick = props.onClick
   const materialColor = props.materialColor === undefined ? "blue" : props.materialColor
 
+  const ref = useRef()
+
+  useInteraction(ref, "onSelect", ()=>{onClick(props.model_ID)})
+
+  
   return (
-      <mesh 
-        onClick={(e)=> {
-            e.stopPropagation()
-            onClick(props.model_ID)
-        }}
-        key={props.model_ID}
-        visible={visible}
-        geometry={props.model.geometry}
-        position={props.model.position}
-        rotation={props.model.rotation}
-        scale={props.model.scale}
-        opacity={0.2}
-      >
-       <meshBasicMaterial
-          attach="material"
-          color={materialColor}
-          opacity={0.5}
-          transparent
-        />  
-      </mesh>)
+        <mesh 
+          ref={ref}
+          onClick={(e)=> {
+              e.stopPropagation()
+              onClick(props.model_ID)
+          }}
+          key={props.model_ID}
+          visible={visible}
+          geometry={props.model.geometry}
+          position={props.model.position}
+          rotation={props.model.rotation}
+          scale={props.model.scale}
+          opacity={0.2}
+        >
+        <meshBasicMaterial
+            attach="material"
+            color={materialColor}
+            opacity={0.5}
+            transparent
+          />  
+        </mesh>
+      )
  }
  
 

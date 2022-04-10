@@ -1,4 +1,4 @@
-import React, {useEffect, Component, Suspense} from 'react'
+import React, { Component, Suspense} from 'react'
 import { gltfResource, GroundPlane } from "../Model/Part3D"
 import { onSnapshot, collection, setDoc, doc } from "firebase/firestore"
 import firestore from "../API"
@@ -20,27 +20,33 @@ export default class NetScene extends Component {
 
     componentDidMount(){
        
+        if(!this.state.scene){
+            this.readPlant()
+            this.loadScene("STRANDCASTER6")
+        }
+    }
+
+    loadScene(sceneName){
+        console.log("LOADING SCENE ( "+sceneName+" )...")
+        gltfResource.loadModel(sceneName, (gltf) => {
+            this.setState({scene : gltf})
+            console.log("SCENE ( "+sceneName+" ) LOADED!")
+        })
+    }
+
+    readPlant(){
         onSnapshot(
             collection(firestore,"Plant"), (snapShot)=>{
                 var n_status = []
                 var n_highlightedObject = []
-                console.log(snapShot.docs.map((doc)=>{
+                snapShot.docs.forEach((doc)=>{
                     var documentName = doc.id, documentData = doc.data()
                     n_status[documentName] = documentData["status"]
                     n_highlightedObject[documentName] = documentData["highlighted"]
-                }))
+                })
                 this.setState({status: n_status, highlightedObject: n_highlightedObject})
             }
         );
-        
-        if(!this.state.scene){
-            console.log("LOADING SCENE...")
-            gltfResource.loadModel("STRANDCASTER6", (gltf) => {
-                this.setState({scene : gltf})
-                console.log("SCENE LOADED!")
-            })
-        }
-        
     }
 
     updatePlant(model_ID,data){
@@ -50,10 +56,8 @@ export default class NetScene extends Component {
   render() {
     if(this.state.scene){
         var sceneModels = []
-        
-        console.log(this.state.highlightedObject)
 
-        this.state.scene.children.map(child => {
+        this.state.scene.children.forEach(child => {
             var model = child.clone()
             if(child.name !== "Model"){
                 sceneModels.push(

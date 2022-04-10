@@ -3,6 +3,7 @@ import {
     GLTFLoader,
     MeshoptDecoder,
     OrbitControls as ThreeOrbitControls,
+    meshBasicMaterial
   } from "three-stdlib";
 
 import * as THREE from "three"
@@ -59,23 +60,29 @@ class GLTFResource {
  export  function Part3D(props) {
   const visible = props.visible === undefined ? true : props.visible
   const onClick = props.onClick
-  
+  const materialColor = props.materialColor === undefined ? "blue" : props.materialColor
+
   return (
       <mesh 
-          onClick={(e)=> {
-              e.stopPropagation()
-              onClick(props.model_ID)
-          }}
-          key={props.model_ID}
-          visible={visible}
+        onClick={(e)=> {
+            e.stopPropagation()
+            onClick(props.model_ID)
+        }}
+        key={props.model_ID}
+        visible={visible}
+        geometry={props.model.geometry}
+        position={props.model.position}
+        rotation={props.model.rotation}
+        scale={props.model.scale}
+        opacity={0.2}
       >
-      <primitive 
-      object={props.model}
-      position={props.model.position}
-      rotation={props.model.rotation}
-      />
-  </mesh>
-  )
+       <meshBasicMaterial
+          attach="material"
+          color={materialColor}
+          opacity={0.5}
+          transparent
+        />  
+      </mesh>)
  }
  
 
